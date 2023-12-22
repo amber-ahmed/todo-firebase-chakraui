@@ -1,7 +1,13 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { collection, getFirestore } from "firebase/firestore";
-import { getMessaging, getToken} from 'firebase/messaging';
+import {
+  collection,
+  connectFirestoreEmulator,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore";
+import { getMessaging } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCPAmRGxpskctljXtODbsvy_LXxL508g-w",
@@ -14,12 +20,15 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
-const usersColRef = collection(db, "users")
-const todoColRef = collection(db, "todo")
-const subTodoColRef = collection(db, "sub_tasks")
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+});
+connectFirestoreEmulator(db,'127.0.0.1',8080)
+const usersColRef = collection(db, "users");
+const todoColRef = collection(db, "todo");
+const subTodoColRef = collection(db, "sub_tasks");
 const messaging = getMessaging(app);
 
-
-
-export {app, auth, db,usersColRef,todoColRef,subTodoColRef,messaging };
+export { app, auth, db, messaging, usersColRef, todoColRef, subTodoColRef };

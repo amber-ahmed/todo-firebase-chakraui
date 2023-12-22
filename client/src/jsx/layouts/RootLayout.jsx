@@ -5,12 +5,10 @@ import { useDispatch } from "react-redux";
 import { getUserAccount } from "../../redux/slices/accountSlilce";
 
 const RootLayout = () => {
-  const params = useParams();
   const dispatch = useDispatch();
   useEffect(() => {
-    console.log(params);
     dispatch(getUserAccount());
-  }, [params]);
+  }, []);
   return (
     <>
       <NavBar />

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Link,
   Box,
@@ -15,6 +15,7 @@ import logo from "../../assets/todo.png";
 import ThemeContext from "../../contexts/ThemeContext";
 import { logout } from "../../firebase/models/auth";
 import { useSelector } from "react-redux";
+import { getOfflineData } from "../../firebase/models/task";
 
 const NavBar = (props) => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -92,6 +93,10 @@ const MenuLinks = ({ isOpen }) => {
     localStorage.setItem("theme", theme);
     setUserTheme(theme);
   };
+  const [tasksCount, setTasksCount] = useState(null);
+  useEffect(() => {
+    getOfflineData(setTasksCount).then((data) => console.log(data));
+  }, [tasksCount]);
   return (
     <Box
       display={{ base: isOpen ? "block" : "none", md: "block" }}
@@ -104,6 +109,7 @@ const MenuLinks = ({ isOpen }) => {
         direction={["column", "row", "row", "row"]}
         pt={[4, 4, 0, 0]}
       >
+        <Text color={'text2'}>{tasksCount}</Text>
         {/* <MenuItem to="/">Minha Conta</MenuItem> */}
         {!userDetails && (
           <MenuItem to="register">

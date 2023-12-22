@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const PrivateRoutes = () => {
-  const [isLogged, setIsLogged] = useState(true);
-  const userDetails = useSelector((state) => state.account);
-
+  const error = useSelector((state) => state.account.error);
+  const navigate = useNavigate();
   useEffect(() => {
-    if (userDetails.error == "user not found") {
-      localStorage.clear()
-      setIsLogged(false);
+    if (error == "user not found") {
+      localStorage.clear();
+      navigate("/login", { replace: true });
     }
-  }, []);
-  return isLogged ? <Outlet /> : <Navigate to={"/login"} />;
+  }, [error]);
+  return <Outlet />;
 };
 
 export default PrivateRoutes;

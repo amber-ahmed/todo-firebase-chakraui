@@ -14,20 +14,28 @@ import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import colors from "./themes/theme.jsx";
 import ThemeContext from "./contexts/ThemeContext.js";
 import { useState } from "react";
-import RegisterName from "./jsx/views/authentications/RegisterName.jsx";
-import {Provider} from 'react-redux'
+import RegisterName from "./jsx/views/authentications/RegisterName";
+import { Provider } from "react-redux";
 import store from "./redux/store.js";
 import Form from "./jsx/views/forms/Form";
-
+import { requestPermission } from "./firebase/models/notification.js";
+import AuthRoutes from "./routes/AuthRoutes";
+import PrivateRoutes from "./routes/PrivateRoutes";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
-      <Route index element={<Landing />} />
-      <Route path="login" element={<Login />} />
+      <Route element={<AuthRoutes />}>
       <Route path="register" element={<Register />} />
-      <Route path="register_name/:docId" element={<RegisterName />} />
-      <Route path="dashboard" element={<Dashboard />} />
+        <Route path="login" element={<Login />} />
+        <Route path="register_name/:docId" element={<RegisterName />} />
+      </Route>
+
+      <Route element={<PrivateRoutes />}>
+        <Route path="dashboard" element={<Dashboard />} />
+      </Route>
+
+      <Route index element={<Landing />} />
       <Route path="form" element={<Form />} />
     </Route>
   )
@@ -56,11 +64,13 @@ function App() {
       },
     },
   });
+  requestPermission();
+
   return (
     <ThemeContext.Provider value={setUserTheme}>
       <ChakraProvider theme={theme}>
         <Provider store={store}>
-        <RouterProvider router={router} />
+          <RouterProvider router={router} />
         </Provider>
       </ChakraProvider>
     </ThemeContext.Provider>

@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
 import AddTask from "./AddTask";
 import TodoList from "./TodoList";
-import { getTasks } from "../../../firebase/models/task";
+import { getOfflineData, getTasks } from "../../../firebase/models/task";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { db,app } from "../../../firebase/firebase";
+import { db, app, messaging } from "../../../firebase/firebase";
 import Header from "./Header";
-import {
-  onBackgroundMessageListener,
-  onMessageListener,
-  requestForToken,
-} from "../../../firebase/models/firebase-messaging-sw";
-import { Text } from "@chakra-ui/react";
-import { getMessaging, onMessage } from "firebase/messaging";
+import { onMessage } from "firebase/messaging";
 
 const Dashboard = () => {
   const [reload, setReload] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onMessage(messaging, (payload) => {
+      console.log(payload);
+    });
+    return ()=>unsubscribe()
+  }, []);
 
   // useEffect(() => {
   //   const tasksCollection = todoColRef;
@@ -35,27 +36,6 @@ const Dashboard = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [userFilter, setUserFilter] = useState("all");
   const [sort, setSort] = useState("sequence");
-  const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    requestForToken();
-
-    onMessageListener()
-      .then((payload) => {
-        console.lgo({
-          title: payload?.notification?.title,
-          body: payload?.notification?.body,
-        });
-        setMessage("hi");
-      })
-      .catch((err) => console.log("failed: ", err));
-  }, []);
-
-  const messaging = getMessaging(app);
-  onMessage(messaging, (payload) => {
-    console.log("Message received. ", payload);
-    // ...
-  });
 
   useEffect(() => {
     getTasks(statusFilter, userFilter, sort)
@@ -67,16 +47,6 @@ const Dashboard = () => {
         console.error("Error fetching tasks:", error);
       });
   }, [reload, statusFilter, userFilter, sort]);
-
-  // onBackgroundMessageListener()
-  // .then((payload) => {
-  //   console.lgo({
-  //     title: payload?.notification?.title,
-  //     body: payload?.notification?.body,
-  //   });
-  //   alert('hi')
-  // })
-  // .catch((err) => console.log("failed: ", err));
   return (
     <>
       <Header
@@ -84,7 +54,6 @@ const Dashboard = () => {
         setUserFilter={setUserFilter}
         setSort={setSort}
       />
-      <Text color={"white"}>{message}</Text>
       <TodoList
         todos={todos}
         setTodos={setTodos}

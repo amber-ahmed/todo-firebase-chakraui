@@ -5,6 +5,7 @@ import {
   doc,
   getCountFromServer,
   getDocs,
+  onSnapshot,
   orderBy,
   query,
   serverTimestamp,
@@ -193,3 +194,29 @@ export const reArrangeTodos = async (source, destination) => {
     console.log(error);
   }
 };
+
+export const getOfflineData = async (setTasksCount) => {
+  try {
+    const q = query(todoColRef);
+    const initialSnapshot = await getDocs(q);
+    const initialCount = initialSnapshot.docs.length;
+    console.log('Initial count:', initialCount);
+
+    setTasksCount(initialCount); // Set initial count
+
+    onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
+      const updatedCount = snapshot.docs.length;
+      setTasksCount(updatedCount);
+      console.log('Offline count:', updatedCount);
+    });
+
+    // Return the initial count
+    return initialCount;
+  } catch (error) {
+    console.error("Error getting documents: ", error);
+    // Handle errors appropriately
+    return null;
+  }
+};
+
+
