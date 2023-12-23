@@ -11,6 +11,7 @@ import {
   serverTimestamp,
   updateDoc,
   where,
+  runTransaction,
   writeBatch,
 } from "firebase/firestore";
 import { db, subTodoColRef, todoColRef } from "../firebase";
@@ -44,14 +45,33 @@ export const updateTask = async (data, docId) => {
 
 export const deleteTask = async (docId) => {
   try {
-    const todoDocref = doc(db, "todo", docId);
-    await deleteDoc(todoDocref);
+    // const todoDocref = doc(db, "todo", docId);
+    // await deleteDoc(todoDocref);
 
-    let subTasksCol = query(subTodoColRef, where("parentDocId", "==", docId));
-    const subTaskSnapshot = await getDocs(subTasksCol);
-    subTaskSnapshot.docs.forEach(async (doc) => {
-      const subTodoDocref = doc(db, "sub_tasks", doc.id);
-      await deleteDoc(subTodoDocref);
+    // let subTasksCol = query(subTodoColRef, where("parentDocId", "==", docId));
+    // const subTaskSnapshot = await getDocs(subTasksCol);
+    // subTaskSnapshot.docs.forEach(async (doc) => {
+    //   const subTodoDocref = doc(db, "sub_tasks", doc.id);
+    //   await deleteDoc(subTodoDocref);
+    // });
+
+    await runTransaction(db, async (transaction) => {
+      const todoDocref = doc(db, "todo", docId);
+      const todoDoc = await transaction.get(todoDocref);
+      if (!todoDoc.exists) {
+        throw new Error("Todo document does not exist!");
+      }
+      transaction.delete(todoDocref);
+      const subTasksCol = query(
+        subTodoColRef,
+        where("parentDocId", "==", docId)
+      );
+      const subTaskSnapshot = await getDocs(subTasksCol);
+
+      subTaskSnapshot.forEach((subTaskDoc) => {
+        const subTaskDocRef = doc(db, "sub_tasks", subTaskDoc.id);
+        transaction.delete(subTaskDocRef);
+      });
     });
   } catch (err) {
     console.error(err);
@@ -200,14 +220,14 @@ export const getOfflineData = async (setTasksCount) => {
     const q = query(todoColRef);
     const initialSnapshot = await getDocs(q);
     const initialCount = initialSnapshot.docs.length;
-    console.log('Initial count:', initialCount);
+    console.log("Initial count:", initialCount);
 
     setTasksCount(initialCount); // Set initial count
 
-    onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
+    onSnapshot(q, (snapshot) => {
       const updatedCount = snapshot.docs.length;
       setTasksCount(updatedCount);
-      console.log('Offline count:', updatedCount);
+      console.log("Offline count:", updatedCount);
     });
 
     // Return the initial count
@@ -218,5 +238,3 @@ export const getOfflineData = async (setTasksCount) => {
     return null;
   }
 };
-
-

@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { connectAuthEmulator, getAuth } from "firebase/auth";
 import {
   collection,
   connectFirestoreEmulator,
@@ -25,10 +25,13 @@ const db = initializeFirestore(app, {
     tabManager: persistentMultipleTabManager(),
   }),
 });
-connectFirestoreEmulator(db,'127.0.0.1',8080)
+connectFirestoreEmulator(db, "127.0.0.1", 8080);
+connectAuthEmulator(auth, 'http://127.0.0.1:9099');
 const usersColRef = collection(db, "users");
 const todoColRef = collection(db, "todo");
 const subTodoColRef = collection(db, "sub_tasks");
 const messaging = getMessaging(app);
+
+
 
 export { app, auth, db, messaging, usersColRef, todoColRef, subTodoColRef };

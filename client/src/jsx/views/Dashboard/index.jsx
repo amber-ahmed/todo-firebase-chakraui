@@ -10,12 +10,7 @@ import { onMessage } from "firebase/messaging";
 const Dashboard = () => {
   const [reload, setReload] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onMessage(messaging, (payload) => {
-      console.log(payload);
-    });
-    return ()=>unsubscribe()
-  }, []);
+ 
 
   // useEffect(() => {
   //   const tasksCollection = todoColRef;

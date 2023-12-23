@@ -26,13 +26,14 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
       <Route element={<AuthRoutes />}>
-      <Route path="register" element={<Register />} />
+        <Route path="register" element={<Register />} />
         <Route path="login" element={<Login />} />
-        <Route path="register_name/:docId" element={<RegisterName />} />
       </Route>
 
       <Route element={<PrivateRoutes />}>
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="register_name" element={<RegisterName />} />
+
       </Route>
 
       <Route index element={<Landing />} />

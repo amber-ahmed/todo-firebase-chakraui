@@ -21,13 +21,17 @@ function Login() {
   const [user, loading, error] = useAuthState(auth);
   const navigate = useNavigate();
   const register = async () => {
-    await logInWithEmailAndPassword(email, password);
-    navigate("/dashboard");
+    try {
+      await logInWithEmailAndPassword(email, password);
+      navigate("/dashboard");
+    } catch (error) {
+      console.log(error);
+    }
   };
   const loginWithGoogle = async () => {
     try {
       const docId = await signInWithGoogle();
-      if (docId) navigate(`/register_name/${docId}`);
+      if (docId) navigate(`/register_name`);
       else navigate(`/dashboard`);
     } catch (error) {
       console.log(error);

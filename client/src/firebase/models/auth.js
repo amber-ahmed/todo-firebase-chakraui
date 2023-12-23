@@ -14,8 +14,9 @@ import {
   addDoc,
   updateDoc,
   doc,
+  limit,
 } from "firebase/firestore";
-import { auth, db, usersColRef } from "../firebase";
+import { auth, db, todoColRef, usersColRef } from "../firebase";
 const googleProvider = new GoogleAuthProvider();
 const signInWithGoogle = async () => {
   try {
@@ -48,15 +49,38 @@ const logInWithEmailAndPassword = async (email, password) => {
   } catch (err) {
     console.error(err);
     alert(err.message);
+    throw err;
   }
 };
-const registerName = async (name, docId) => {
+const registerName = async (name) => {
   try {
+    // console.log(docId);
+    // const userDocref = doc(db, "users", docId);
+    // await updateDoc(userDocref, {
+    //   name,
+    // });
+
+    const q = query(
+      usersColRef,
+      where("uid", "==", localStorage.getItem("uid")),
+      limit(1)
+    );
+    const querySnapshot = await getDocs(q);
+    const docId = querySnapshot.docs[0].id;
     console.log(docId);
-    const userDocref = doc(db, "users", docId);
-    await updateDoc(userDocref, {
-      name,
-    });
+    const userDocRef = doc(db, "users", docId);
+    await updateDoc(userDocRef, { name });
+
+    const q2 = query(
+      todoColRef,
+      where("userId", "==", localStorage.getItem("uid")),
+      limit(1)
+    );
+    const querySnapshot2 = await getDocs(q2);
+    const docId2 = querySnapshot2.docs[0].id;
+    console.log(docId);
+    const todoDocref = doc(db, "todo", docId2);
+    await updateDoc(todoDocref, { userName: name });
   } catch (err) {
     console.error(err);
     alert(err.message);
@@ -100,7 +124,7 @@ const userData = async () => {
     console.log(docs.docs);
     let userData = docs?.docs[0]?.data();
     if (userData) return userData;
-    return Promise.reject('user not found')
+    return Promise.reject("user not found");
   } catch (err) {
     console.error(err);
     alert(err.message);

@@ -34,7 +34,7 @@ function Register() {
   const registerWithGoogle = async () => {
     try {
       const docId = await signInWithGoogle();
-      if (docId) navigate(`/register_name/${docId}`);
+      if (docId) navigate(`/register_name`);
       else navigate(`/dashboard`);
     } catch (error) {
       alert("something went wrong try later");

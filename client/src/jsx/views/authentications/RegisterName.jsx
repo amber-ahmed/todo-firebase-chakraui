@@ -11,7 +11,7 @@ function RegisterName() {
   console.log(location)
   const navigate = useNavigate();
   const handleRegisterName = () => {
-    registerName(name, location.docId);
+    registerName(name);
     navigate('/dashboard')
   };
   return (
